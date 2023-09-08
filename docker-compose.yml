@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  php:
+    container_name: "news-php"
+    build:
+      context: .
+      args:
+        - USER_ID=1000
+        - USER=news-docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/news
+    restart: always
+    networks:
+      - news
+
+  web:
+    container_name: "news-nginx"
+    image: nginx:1.24
+    working_dir: /var/www/news
+    volumes:
+      - ./:/var/www/news:delegated
+      - .docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:delegated
+    restart: always
+    ports:
+      - "${WEB_DOCKER_PORT}:80"
+    networks:
+      - news
+
+  db:
+    container_name: "news-db"
+    platform: linux/x86-64
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    restart: always
+    volumes:
+      - ~/data/news:/var/lib/mysql
+    ports:
+      - "${DB_DOCKER_PORT}:3306"
+    networks:
+      - news
+  
+  redis:
+    container_name: news-redis
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - "${REDIS_DOCKER_PORT}:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_DOCKER_PASSWORD}
+    volumes:
+      - ~/data/db/redis/news:/data
+    networks:
+      - news
+
+networks:
+  news:
+    name: news
+    driver: bridge
