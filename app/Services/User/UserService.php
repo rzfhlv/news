@@ -4,13 +4,25 @@ namespace App\Services\User;
 
 use App\Repositories\User\UserRepositoryContract;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 
 class UserService implements UserServiceContract
 {
+    const PUBLIC = 'public';
+    const MYAPP = 'MyApp';
+    const UNAUTHORIZED = 'Unauthorized';
+
     protected $loginRule = [
         'email' => 'required|email',
+        'password' => 'required',
+    ];
+
+    protected $registerRule = [
+        'name' => 'required',
+        'email' => 'required|email|unique:users',
         'password' => 'required',
     ];
 
@@ -32,11 +44,37 @@ class UserService implements UserServiceContract
         if ($this->userRepository->attempt($data)) {
             $check['email'] = $data['email'];
             $user = $this->userRepository->check($check);
-            $token = $user->createToken('MyApp')->accessToken;
+            $token = $user->createToken(self::MYAPP)->accessToken;
         } else {
-            throw new AuthenticationException('Unauthorized');
+            throw new AuthenticationException(self::UNAUTHORIZED);
         }
 
-        return collect(["token" => $token])->toJson();
+        return collect(['token' => $token]);
+    }
+
+    public function register(array $data)
+    {
+        $validator = Validator::make($data, $this->registerRule);
+
+        if ($validator->fails()) {
+            throw new InvalidArgumentException($validator->errors());
+        }
+
+        $data['password'] = bcrypt($data['password']);
+
+        try {
+            $user = $this->userRepository->create($data);
+            $user->syncRoles(self::PUBLIC);
+            $token = $user->createToken(self::MYAPP)->accessToken;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+        return collect(['token' => $token]);
+    }
+
+    public function logout(Request $request)
+    {
+        return $this->userRepository->logout($request);
     }
 }

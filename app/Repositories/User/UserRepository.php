@@ -3,10 +3,14 @@
 namespace App\Repositories\User;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\AuthenticationException;
 
 class UserRepository implements UserRepositoryContract
 {
+    const UNAUTHORIZED = 'Unauthorized';
+
     protected $user;
     protected $auth;
 
@@ -32,5 +36,10 @@ class UserRepository implements UserRepositoryContract
             'email' => $data['email'],
             'password' => $data['password'],
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        return $request->user()->token()->revoke();
     }
 }
