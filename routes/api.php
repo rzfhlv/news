@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\NewsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,16 @@ Route::post('/register', [UserController::class, 'register']);
 
 Route::middleware(['auth:api'])->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
+
+    Route::prefix('/news')->group(function () {
+        Route::controller(NewsController::class)->group(function () {
+            Route::post('/', 'create');
+            Route::get('/', 'all');
+            Route::get('/{id}', 'get');
+            Route::put('/{id}', 'update');
+            Route::delete('/{id}', 'delete');
+        });
+    });
 });
 
 Route::any('{path}', function () {

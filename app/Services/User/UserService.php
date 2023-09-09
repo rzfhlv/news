@@ -5,7 +5,6 @@ namespace App\Services\User;
 use App\Repositories\User\UserRepositoryContract;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 
@@ -15,12 +14,12 @@ class UserService implements UserServiceContract
     const MYAPP = 'MyApp';
     const UNAUTHORIZED = 'Unauthorized';
 
-    protected $loginRule = [
+    protected $loginRules = [
         'email' => 'required|email',
         'password' => 'required',
     ];
 
-    protected $registerRule = [
+    protected $registerRules = [
         'name' => 'required',
         'email' => 'required|email|unique:users',
         'password' => 'required',
@@ -35,7 +34,7 @@ class UserService implements UserServiceContract
 
     public function login(array $data)
     {
-        $validator = Validator::make($data, $this->loginRule);
+        $validator = Validator::make($data, $this->loginRules);
 
         if ($validator->fails()) {
             throw new InvalidArgumentException($validator->errors());
@@ -54,7 +53,7 @@ class UserService implements UserServiceContract
 
     public function register(array $data)
     {
-        $validator = Validator::make($data, $this->registerRule);
+        $validator = Validator::make($data, $this->registerRules);
 
         if ($validator->fails()) {
             throw new InvalidArgumentException($validator->errors());
