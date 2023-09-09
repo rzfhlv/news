@@ -2,8 +2,12 @@
 
 namespace App\Exceptions;
 
+use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
 use Throwable;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class Handler extends ExceptionHandler
 {
@@ -23,8 +27,20 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        // $this->reportable(function (Throwable $e) {
+        //     //
+        // });
+
+        $this->renderable(function (Exception $e, Request $request) {
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException) {
+                if ($request->is('v1/*')) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Unauthorized',
+                        'data' => [],
+                    ], Response::HTTP_UNAUTHORIZED);
+                }
+            }
         });
     }
 }
