@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Log\LogRepository;
+use App\Repositories\Log\LogRepositoryContract;
 use App\Repositories\News\NewsRepository;
 use App\Repositories\News\NewsRepositoryContract;
 use App\Repositories\Storage\StorageRepository;
@@ -20,6 +22,7 @@ class RepositoriesProvider extends ServiceProvider
         $this->app->bind(UserRepositoryContract::class, UserRepository::class);
         $this->app->bind(NewsRepositoryContract::class, NewsRepository::class);
         $this->app->bind(StorageRepositoryContract::class, StorageRepository::class);
+        $this->app->bind(LogRepositoryContract::class, LogRepository::class);
     }
 
     /**

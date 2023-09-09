@@ -9,6 +9,6 @@ interface NewsServiceContract
     public function create(Request $request);
     public function all();
     public function get(int $id);
-    public function update(Request $data, int $id);
-    public function delete(int $id);
+    public function update(Request $request, int $id);
+    public function delete(Request $request, int $id);
 }

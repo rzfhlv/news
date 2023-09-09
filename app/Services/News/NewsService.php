@@ -7,6 +7,7 @@ use App\Repositories\Storage\StorageRepositoryContract;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use Illuminate\Http\Request;
+use App\Events\NewsTrigger;
 
 class NewsService implements NewsServiceContract
 {
@@ -50,6 +51,16 @@ class NewsService implements NewsServiceContract
             $imageName = $this->storageRepository->url($path, $disk);
             $data['image'] = $imageName;
             $news = $this->newsRepository->create($data);
+
+            $logData = [
+                'type' => 'news',
+                'action' => 'create',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+                'current_payload' => $news->toJson(),
+                'changed_by' => auth()->user()->id,
+            ];
+            NewsTrigger::dispatch($logData);
         } catch (\Throwable $th) {
             $this->storageRepository->delete([$path], $disk);
 
@@ -87,18 +98,47 @@ class NewsService implements NewsServiceContract
             $imageName = $this->storageRepository->url($path, $disk);
             $data['image'] = $imageName;
             $condition = ['id' => $id];
+            $prev = $this->newsRepository->get($id);
             $news = $this->newsRepository->update($data, $condition);
+            $current = $this->newsRepository->get($id);
+
+            $logData = [
+                'type' => 'news',
+                'action' => 'update',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+                'previous_payload' => $prev->toJson(),
+                'current_payload' => $current->toJson(),
+                'changed_by' => auth()->user()->id,
+            ];
+            NewsTrigger::dispatch($logData);
         } catch (\Throwable $th) {
             $this->storageRepository->delete([$path], $disk);
 
             throw $th;
         }
 
-        return $news;
+        return $current;
     }
 
-    public function delete(int $id)
+    public function delete(Request $request, int $id)
     {
-        return $this->newsRepository->delete($id);
+        try {
+            $prev = $this->newsRepository->get($id);
+            $news = $this->newsRepository->delete($id);
+
+            $logData = [
+                'type' => 'news',
+                'action' => 'delete',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+                'previous_payload' => $prev->toJson(),
+                'changed_by' => auth()->user()->id,
+            ];
+            NewsTrigger::dispatch($logData);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+        return $news;
     }
 }

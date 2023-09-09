@@ -28,7 +28,7 @@ Route::middleware(['auth:api'])->group(function () {
             Route::post('/', 'create');
             Route::get('/', 'all');
             Route::get('/{id}', 'get');
-            Route::put('/{id}', 'update');
+            Route::post('/{id}', 'update');
             Route::delete('/{id}', 'delete');
         });
     });
