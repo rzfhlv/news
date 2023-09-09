@@ -32,7 +32,7 @@ class Handler extends ExceptionHandler
         // });
 
         $this->renderable(function (Exception $e, Request $request) {
-            if ($e instanceof \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException) {
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException || $e instanceof \Illuminate\Auth\AuthenticationException) {
                 if ($request->is('v1/*')) {
                     return response()->json([
                         'status' => 'error',

@@ -17,7 +17,16 @@ use App\Http\Controllers\Api\UserController;
 */
 
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/register', [UserController::class, 'register']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware(['auth:api'])->group(function () {
+    Route::post('/logout', [UserController::class, 'logout']);
 });
+
+Route::any('{path}', function () {
+    return response()->json(array(
+        'error' => true,
+        'message' => 'Invalid API',
+        'data' => []
+    ), 404);
+})->where('path', '.*');
