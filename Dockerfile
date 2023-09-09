@@ -18,6 +18,10 @@ RUN apk --update add \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j "$(nproc)" gd
 
+run apk add --no-cache autoconf gcc g++ make pcre-dev $phpize_deps \
+    && pecl install redis \
+    && docker-php-ext-enable redis.so
+
 RUN set -x ; \
     addgroup -g $USER_ID -S $USER ; \
     adduser -u $USER_ID -h /home/$USER -D $USER -S -G www-data www-data && exit 0 ; exit 1

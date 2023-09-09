@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class News extends Model
 {
@@ -16,4 +17,9 @@ class News extends Model
         'author',
         'is_publish',
     ];
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

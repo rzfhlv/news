@@ -21,7 +21,6 @@ class News extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
             'status' => 'success',
             'message' => 'Success GET News',

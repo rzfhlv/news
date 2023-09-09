@@ -25,7 +25,7 @@ class NewsRepository implements NewsRepositoryContract
 
     public function get(int $id)
     {
-        return $this->news::find($id);
+        return $this->news::with('comments')->find($id);
     }
 
     public function update(array $data, array $condition)
