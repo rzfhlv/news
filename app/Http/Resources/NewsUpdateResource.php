@@ -14,7 +14,6 @@ class NewsUpdateResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
             'status' => 'success',
             'message' => 'Success Update News',

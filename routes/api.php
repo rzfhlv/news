@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,12 @@ Route::middleware(['auth:api'])->group(function () {
             Route::get('/{id}', 'get');
             Route::post('/{id}', 'update');
             Route::delete('/{id}', 'delete');
+        });
+    });
+
+    Route::prefix('/comments')->group(function () {
+        Route::controller(CommentController::class)->group(function () {
+            Route::post('/', 'create');
         });
     });
 });
