@@ -90,18 +90,26 @@ class NewsController extends Controller
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
 
+            $message = self::SOMETHING_WENT_WRONG;
+            $code = Response::HTTP_INTERNAL_SERVER_ERROR;
+
+            if ($th instanceof InvalidArgumentException) {
+                $message = json_decode($th->getMessage(), true);
+                $code = Response::HTTP_BAD_REQUEST;
+            }
+
             return response()->json([
                 'status' => self::ERROR,
-                'message' => self::SOMETHING_WENT_WRONG,
+                'message' => $message,
                 'data' => [],
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], $code);
         }
     }
 
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         try {
-            $this->newsService->delete($id);
+            $this->newsService->delete($request, $id);
             return response()->json([
                 'status' => self::SUCCESS,
                 'message' => self::SUCCESS_DELETE,
