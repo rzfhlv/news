@@ -15,11 +15,6 @@ use Illuminate\Support\Collection;
 
 class UserController extends Controller
 {
-    const SOMETHING_WENT_WRONG = "Something Went Wrong";
-    const SUCCESS_LOGOUT = "Success Logout";
-    const SUCCESS = "success";
-    const ERROR = "error";
-
     protected $userService;
 
     public function __construct(UserServiceContract $userService)
@@ -45,7 +40,7 @@ class UserController extends Controller
                 $message = json_decode($th->getMessage(), true);
                 $code = Response::HTTP_BAD_REQUEST;
             } else if ($th instanceof AuthenticationException) {
-                $message = $th->getMessage();
+                $message = self::UNAUTHORIZED;
                 $code = Response::HTTP_UNAUTHORIZED;
             }
 
@@ -75,7 +70,7 @@ class UserController extends Controller
                 $message = json_decode($th->getMessage(), true);
                 $code = Response::HTTP_BAD_REQUEST;
             } else if ($th instanceof AuthenticationException) {
-                $message = $th->getMessage();
+                $message = self::UNAUTHORIZED;
                 $code = Response::HTTP_UNAUTHORIZED;
             }
 
