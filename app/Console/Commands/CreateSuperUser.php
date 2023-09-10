@@ -6,6 +6,7 @@ use App\Repositories\User\UserRepositoryContract;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class CreateSuperUser extends Command
 {
@@ -58,7 +59,8 @@ class CreateSuperUser extends Command
             DB::beginTransaction();
             try {
                 if ($user = $userRepository->create($data)) {
-                    $user->syncRoles('admin');
+                    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
+                    $user->syncRoles($role->name);
                     $isSuccess = true;
                     $message = "Create User Success";
                     DB::commit();
