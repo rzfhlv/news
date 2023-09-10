@@ -26,12 +26,16 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::prefix('/news')->group(function () {
         Route::controller(NewsController::class)->group(function () {
-            Route::post('/', 'create');
+            Route::middleware(['role:admin'])->group(function () {
+                Route::post('/', 'create');
+                Route::post('/{id}', 'update');
+                Route::delete('/{id}', 'delete');
+            });
+            
             Route::get('/', 'all');
             Route::get('/{id}', 'get');
-            Route::post('/{id}', 'update');
-            Route::delete('/{id}', 'delete');
         });
+        
     });
 
     Route::prefix('/comments')->group(function () {

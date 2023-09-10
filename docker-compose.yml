@@ -11,9 +11,15 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./:/var/www/news
+      - .docker/supervisor/news-worker.conf:/etc/supervisor/conf.d/worker.conf
     restart: always
     networks:
       - news
+    command:
+      - /bin/sh
+      - -c
+      - supervisord -c /etc/supervisor/conf.d/worker.conf
+      - supervisorctl start all
 
   web:
     container_name: "news-nginx"

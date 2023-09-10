@@ -14,6 +14,7 @@ class Controller extends BaseController
     const UNAUTHORIZED = "Unauthorized";
     const SUCCESS_LOGOUT = "Success Logout";
     const SUCCESS_DELETE = "Success Delete";
+    const NOT_FOUND = "Data Not Found";
     const SUCCESS = "success";
     const ERROR = "error";
 }
