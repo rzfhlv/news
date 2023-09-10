@@ -13,6 +13,9 @@ tinker:
 compose:
 	docker-compose exec php composer install
 
+queue:
+	docker-compose exec php php artisan queue:work --tries=3
+
 install:
 	docker-compose exec php composer install \
 	&& docker-compose exec php php artisan app:fresh-install
