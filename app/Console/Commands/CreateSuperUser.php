@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Repositories\Role\RoleRepositoryContract;
 use App\Repositories\User\UserRepositoryContract;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -33,14 +34,16 @@ class CreateSuperUser extends Command
     /**
      * Execute the console command.
      */
-    public function handle(UserRepositoryContract $userRepository)
-    {
+    public function handle(
+        UserRepositoryContract $userRepository,
+        RoleRepositoryContract $roleRepository,
+    ) {
         $isSuccess = false;
         $message = "No Message";
 
         $name = $this->ask('Name for Super User');
         $email = $this->ask('Email for Super User');
-        $password = $this->ask('Password for Super User');
+        $password = $this->secret('Password for Super User');
 
         $data = [
             'name' => $name,
@@ -52,14 +55,14 @@ class CreateSuperUser extends Command
 
         if ($validator->fails()) {
             $isSuccess = false;
-            $message = json_decode($validator->errors());
+            $message = json_encode($validator->errors());
         } else {
             $data['password'] = bcrypt($data['password']);
 
             DB::beginTransaction();
             try {
                 if ($user = $userRepository->create($data)) {
-                    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
+                    $role = $roleRepository->firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
                     $user->syncRoles($role->name);
                     $isSuccess = true;
                     $message = "Create User Success";

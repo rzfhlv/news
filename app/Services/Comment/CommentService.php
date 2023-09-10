@@ -3,6 +3,8 @@
 namespace App\Services\Comment;
 
 use App\Repositories\Comment\CommentRepositoryContract;
+use App\Repositories\News\NewsRepositoryContract;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 
@@ -14,10 +16,14 @@ class CommentService implements CommentServiceContract
     ];
 
     protected $commentRepository;
+    protected $newsRepository;
 
-    public function __construct(CommentRepositoryContract $commentRepository)
-    {
+    public function __construct(
+        CommentRepositoryContract $commentRepository,
+        NewsRepositoryContract $newsRepository,
+    ) {
         $this->commentRepository = $commentRepository;
+        $this->newsRepository = $newsRepository;
     }
 
     public function create(array $data)
@@ -27,7 +33,17 @@ class CommentService implements CommentServiceContract
         if ($validator->fails()) {
             throw new InvalidArgumentException($validator->errors());
         }
-        
-        return $this->commentRepository->create($data);
+
+        DB::beginTransaction();
+        try {
+            $this->newsRepository->check($data['news_id']);
+            $comment = $this->commentRepository->create($data);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+
+        return $comment;
     }
 }

@@ -5,7 +5,6 @@ namespace App\Repositories\User;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Auth\AuthenticationException;
 
 class UserRepository implements UserRepositoryContract
 {
@@ -32,7 +31,7 @@ class UserRepository implements UserRepositoryContract
 
     public function attempt(array $data)
     {
-        return $this->auth::attempt([
+        return $this->auth::check([
             'email' => $data['email'],
             'password' => $data['password'],
         ]);

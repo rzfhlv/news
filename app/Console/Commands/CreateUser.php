@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Repositories\Role\RoleRepositoryContract;
 use App\Repositories\User\UserRepositoryContract;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
 
 class CreateUser extends Command
 {
@@ -33,8 +33,10 @@ class CreateUser extends Command
     /**
      * Execute the console command.
      */
-    public function handle(UserRepositoryContract $userRepository)
-    {
+    public function handle(
+        UserRepositoryContract $userRepository,
+        RoleRepositoryContract $roleRepository,
+    ) {
         $isSuccess = false;
         $message = "No Message";
 
@@ -55,7 +57,7 @@ class CreateUser extends Command
             DB::beginTransaction();
             try {
                 if ($user = $userRepository->create($data)) {
-                    $role = Role::firstOrCreate(['name' => 'public', 'guard_name' => 'api']);
+                    $role = $roleRepository->firstOrCreate(['name' => 'public', 'guard_name' => 'api']);
                     $user->syncRoles($role->name);
                     $isSuccess = true;
                     $message = "Create User Success";

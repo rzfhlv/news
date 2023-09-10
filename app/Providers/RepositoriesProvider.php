@@ -8,6 +8,8 @@ use App\Repositories\Log\LogRepository;
 use App\Repositories\Log\LogRepositoryContract;
 use App\Repositories\News\NewsRepository;
 use App\Repositories\News\NewsRepositoryContract;
+use App\Repositories\Role\RoleRepository;
+use App\Repositories\Role\RoleRepositoryContract;
 use App\Repositories\Storage\StorageRepository;
 use App\Repositories\Storage\StorageRepositoryContract;
 use App\Repositories\User\UserRepository;
@@ -26,6 +28,7 @@ class RepositoriesProvider extends ServiceProvider
         $this->app->bind(StorageRepositoryContract::class, StorageRepository::class);
         $this->app->bind(LogRepositoryContract::class, LogRepository::class);
         $this->app->bind(CommentRepositoryContract::class, CommentRepository::class);
+        $this->app->bind(RoleRepositoryContract::class, RoleRepository::class);
     }
 
     /**

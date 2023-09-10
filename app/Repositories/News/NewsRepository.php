@@ -28,6 +28,11 @@ class NewsRepository implements NewsRepositoryContract
         return $this->news::with('comments')->findOrFail($id);
     }
 
+    public function check(int $id)
+    {
+        return $this->news::findOrFail($id);
+    }
+
     public function update(array $data, array $condition)
     {
         return $this->news::where($condition)->update($data);
