@@ -2,6 +2,7 @@
 
 namespace App\Services\User;
 
+use App\Repositories\Role\RoleRepositoryContract;
 use App\Repositories\User\UserRepositoryContract;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Spatie\Permission\Models\Role;
 class UserService implements UserServiceContract
 {
     const PUBLIC = 'public';
+    const GUARD_API = 'api';
     const MYAPP = 'MyApp';
     const UNAUTHORIZED = 'Unauthorized';
 
@@ -28,10 +30,14 @@ class UserService implements UserServiceContract
     ];
 
     protected $userRepository;
+    protected $roleRepository;
 
-    public function __construct(UserRepositoryContract $userRepository)
-    {
+    public function __construct(
+        UserRepositoryContract $userRepository,
+        RoleRepositoryContract $roleRepository,
+    ) {
         $this->userRepository = $userRepository;
+        $this->roleRepository = $roleRepository;
     }
 
     public function login(array $data)
@@ -42,9 +48,8 @@ class UserService implements UserServiceContract
             throw new InvalidArgumentException($validator->errors());
         }
 
-        if ($this->userRepository->attempt($data)) {
-            $check['email'] = $data['email'];
-            $user = $this->userRepository->check($check);
+        $check['email'] = $data['email'];
+        if ($user = $this->userRepository->check($check)) {
             $token = $user->createToken(self::MYAPP)->accessToken;
         } else {
             throw new AuthenticationException(self::UNAUTHORIZED);
@@ -66,7 +71,7 @@ class UserService implements UserServiceContract
         DB::beginTransaction();
         try {
             $user = $this->userRepository->create($data);
-            $role = Role::firstOrCreate(['name' => 'public', 'guard_name' => 'api']);
+            $role = $this->roleRepository->firstOrCreate(['name' => self::PUBLIC, 'guard_name' => self::GUARD_API]);
             $user->syncRoles($role->name);
             $token = $user->createToken(self::MYAPP)->accessToken;
             DB::commit();
