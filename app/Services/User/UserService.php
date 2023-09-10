@@ -5,8 +5,10 @@ namespace App\Services\User;
 use App\Repositories\User\UserRepositoryContract;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
+use Spatie\Permission\Models\Role;
 
 class UserService implements UserServiceContract
 {
@@ -61,11 +63,15 @@ class UserService implements UserServiceContract
 
         $data['password'] = bcrypt($data['password']);
 
+        DB::beginTransaction();
         try {
             $user = $this->userRepository->create($data);
-            $user->syncRoles(self::PUBLIC);
+            $role = Role::firstOrCreate(['name' => 'public', 'guard_name' => 'api']);
+            $user->syncRoles($role->name);
             $token = $user->createToken(self::MYAPP)->accessToken;
+            DB::commit();
         } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
 
