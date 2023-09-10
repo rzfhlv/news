@@ -27,10 +27,6 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        // $this->reportable(function (Throwable $e) {
-        //     //
-        // });
-
         $this->renderable(function (Exception $e, Request $request) {
             if ($e instanceof \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException || $e instanceof \Illuminate\Auth\AuthenticationException) {
                 if ($request->is('v1/*')) {
@@ -39,6 +35,14 @@ class Handler extends ExceptionHandler
                         'message' => 'Unauthorized',
                         'data' => [],
                     ], Response::HTTP_UNAUTHORIZED);
+                }
+            } else if ($e instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+                if ($request->is('v1/*')) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Forbiden Access',
+                        'data' => [],
+                    ], Response::HTTP_FORBIDDEN);
                 }
             }
         });

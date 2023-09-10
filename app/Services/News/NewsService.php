@@ -93,13 +93,13 @@ class NewsService implements NewsServiceContract
         }
 
         try {
+            $prev = $this->newsRepository->get($id);
             $image = $request->file('image');
             $path = $this->storageRepository->putFile(self::PATH_IMAGE, $image, $disk);
             $imageName = $this->storageRepository->url($path, $disk);
             $data['image'] = $imageName;
             $condition = ['id' => $id];
-            $prev = $this->newsRepository->get($id);
-            $news = $this->newsRepository->update($data, $condition);
+            $this->newsRepository->update($data, $condition);
             $current = $this->newsRepository->get($id);
 
             $logData = [

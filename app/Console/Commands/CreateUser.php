@@ -23,7 +23,7 @@ class CreateUser extends Command
      */
     protected $description = 'Create User';
     
-    protected $registerRule = [
+    protected $registerRules = [
         'name' => 'required',
         'email' => 'required|email|unique:users',
         'password' => 'required',
@@ -43,7 +43,7 @@ class CreateUser extends Command
             'password' => $this->option('password'),
         ];
 
-        $validator = Validator::make($data, $this->registerRule);
+        $validator = Validator::make($data, $this->registerRules);
 
         if ($validator->fails()) {
             $isSuccess = false;
@@ -54,6 +54,7 @@ class CreateUser extends Command
             DB::beginTransaction();
             try {
                 if ($user = $userRepository->create($data)) {
+                    $user->syncRoles('public');
                     $isSuccess = true;
                     $message = "Create User Success";
                     DB::commit();

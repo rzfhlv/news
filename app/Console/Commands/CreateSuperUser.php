@@ -23,7 +23,7 @@ class CreateSuperUser extends Command
      */
     protected $description = 'Create Super User';
 
-    protected $registerRule = [
+    protected $registerRules = [
         'name' => 'required',
         'email' => 'required|email|unique:users',
         'password' => 'required',
@@ -47,7 +47,7 @@ class CreateSuperUser extends Command
             'password' => $password,
         ];
 
-        $validator = Validator::make($data, $this->registerRule);
+        $validator = Validator::make($data, $this->registerRules);
 
         if ($validator->fails()) {
             $isSuccess = false;
